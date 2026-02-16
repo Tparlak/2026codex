@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>İmsakiye 2026</title>
+    <meta name="description" content="Modern, mobil öncelikli imsak ve iftar vakitleri" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell" id="appShell">
+      <header class="header glass">
+        <div>
+          <p class="brand">🕌 İmsakiye 2026</p>
+          <p class="clock" id="clock">--:--:--</p>
+        </div>
+        <div class="header-actions">
+          <button id="openCity" class="chip">📍 <span id="currentCityText">İstanbul</span></button>
+          <button id="themeToggle" class="icon-btn" aria-label="Tema değiştir">🌙</button>
+          <button class="icon-btn" aria-label="Ayarlar">⚙️</button>
+        </div>
+      </header>
+
+      <main class="container">
+        <section class="card date-card">
+          <div class="date-nav">
+            <button id="prevDay" class="icon-btn">←</button>
+            <div>
+              <p id="gregorianDate" class="date-main"></p>
+              <p id="hijriDate" class="date-sub"></p>
+            </div>
+            <button id="nextDay" class="icon-btn">→</button>
+          </div>
+          <div class="badges">
+            <button id="todayBtn" class="today-btn">Bugün</button>
+            <span class="badge amber" id="todayBadge">Today</span>
+            <span class="badge green" id="ramadanBadge">Ramazan</span>
+          </div>
+        </section>
+
+        <section class="card highlight">
+          <div class="glow glow-1"></div>
+          <div class="glow glow-2"></div>
+          <p class="highlight-title">İFTARA KALAN SÜRE</p>
+          <div class="countdown-grid">
+            <div class="count-item"><strong id="h">00</strong><span>Saat</span></div>
+            <div class="count-item"><strong id="m">00</strong><span>Dakika</span></div>
+            <div class="count-item"><strong id="s">00</strong><span>Saniye</span></div>
+          </div>
+          <p class="next-prayer" id="nextPrayerLabel">Sonraki vakit hesaplanıyor</p>
+        </section>
+
+        <section class="card prayer-list">
+          <div id="prayerRows"></div>
+        </section>
+
+        <footer class="footer" id="footerText"></footer>
+      </main>
+
+      <nav class="bottom-nav glass">
+        <button class="active">🏠<span>Home</span></button>
+        <button>🗓️<span>Calendar</span></button>
+        <button>🧭<span>Qibla</span></button>
+        <button>⚙️<span>Settings</span></button>
+      </nav>
+    </div>
+
+    <div id="cityModal" class="modal hidden">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h3>Şehir Seç</h3>
+          <button id="closeCity" class="icon-btn">✕</button>
+        </div>
+        <label class="search">
+          🔎
+          <input id="citySearch" placeholder="Şehir ara" />
+        </label>
+        <div id="cityList" class="city-grid"></div>
+        <p class="district-title">İlçe</p>
+        <div id="districtList" class="district-list"></div>
+      </div>
+    </div>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
