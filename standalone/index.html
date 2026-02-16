@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Namaz Vakitleri Premium - Bağımsız HTML</title>
+  <style>
+    :root {
+      --bg: #f1faf5;
+      --surface: rgba(255,255,255,.88);
+      --text: #113428;
+      --muted: #5f7f72;
+      --border: #cde8db;
+      --primary: #0f9f72;
+      --amber: #f59e0b;
+      --shadow: 0 16px 42px -14px rgba(16,185,129,.3);
+    }
+    :root.dark {
+      --bg: #0a1712;
+      --surface: rgba(18,33,27,.86);
+      --text: #e8fff5;
+      --muted: #9bc2b3;
+      --border: #1f3f34;
+      --primary: #34d399;
+      --amber: #fbbf24;
+      --shadow: 0 16px 42px -14px rgba(4,120,87,.45);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      background: linear-gradient(180deg, var(--bg), color-mix(in srgb,var(--bg), #fef3c7 30%));
+      color:var(--text); min-height:100vh;
+    }
+    .wrap{max-width:430px;margin:0 auto;padding:0 14px 100px}
+    .card{background:var(--surface); border:1px solid var(--border); border-radius:22px; box-shadow:var(--shadow); padding:14px; backdrop-filter: blur(14px)}
+    .header{position:sticky;top:0;z-index:10;background:color-mix(in srgb,var(--bg), transparent 28%);backdrop-filter: blur(14px);border-bottom:1px solid color-mix(in srgb,var(--border), transparent 30%);padding:12px 14px}
+    .header-inner{max-width:430px;margin:0 auto;display:flex;justify-content:space-between;align-items:center}
+    .row{display:flex;justify-content:space-between;align-items:center;gap:10px}
+    .muted{color:var(--muted)}
+    .badge{display:inline-flex;align-items:center;border-radius:999px;padding:3px 9px;font-size:12px;font-weight:600}
+    .b-primary{background:var(--primary);color:#fff}
+    .b-amber{background:color-mix(in srgb,var(--amber), #fff 22%);color:#5c3c00}
+    .b-muted{background:color-mix(in srgb,var(--border), #000 3%);color:var(--muted)}
+    .grid{display:grid;gap:10px}
+    .mt{margin-top:12px}
+    .clock{font-variant-numeric:tabular-nums}
+    .btn{border:1px solid var(--border);background:transparent;color:var(--text);border-radius:12px;padding:7px 10px;cursor:pointer}
+    .field{width:100%;border-radius:12px;border:1px solid var(--border);padding:9px;background:transparent;color:var(--text)}
+    .prayer-item{padding:12px;border:1px solid var(--border);border-radius:16px;background:var(--surface);display:flex;justify-content:space-between;align-items:center}
+    .prayer-item.active{border-color: color-mix(in srgb,var(--primary), #fff 30%); background: color-mix(in srgb,var(--primary), transparent 88%)}
+    .bottom{position:fixed;left:50%;transform:translateX(-50%);bottom:8px;max-width:430px;width:calc(100% - 16px);padding:10px;border-radius:18px;border:1px solid var(--border);background:var(--surface);box-shadow:var(--shadow);display:flex;justify-content:space-around}
+    .small{font-size:12px}
+    .h1{font-size:30px;font-weight:800;margin:6px 0}
+    .skeleton{height:16px;border-radius:10px;background:color-mix(in srgb,var(--border), transparent 20%);animation:pulse 1.2s infinite}
+    @keyframes pulse{0%,100%{opacity:.55}50%{opacity:1}}
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-inner">
+      <div>
+        <div style="font-weight:700;color:var(--primary)">Namaz Vakitleri</div>
+        <div id="todayText" class="small muted"></div>
+      </div>
+      <div class="row">
+        <span id="clock" class="badge b-amber clock">00:00:00</span>
+        <button id="darkToggle" class="btn" aria-label="Karanlık Mod">🌙</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section id="loadingCard" class="card mt">
+      <div class="skeleton" style="width:120px"></div>
+      <div class="skeleton mt" style="height:36px;width:180px"></div>
+      <div class="skeleton mt" style="width:220px"></div>
+    </section>
+
+    <section id="highlight" class="card mt" style="display:none">
+      <div class="row">
+        <span class="badge b-primary">Şu Anki Vakit</span>
+        <span id="ramadanBadge" class="badge b-amber" style="display:none">Ramazan</span>
+      </div>
+      <div id="currentPrayerName" class="h1">-</div>
+      <div id="currentPrayerTime" style="font-size:18px;color:var(--primary);font-weight:600">-</div>
+      <div class="mt muted small">✨ Sonraki: <span id="nextPrayerInfo">-</span></div>
+    </section>
+
+    <section class="card mt row">
+      <div class="small muted"><span id="nextPrayerName">sonraki vakit</span> vaktine kalan</div>
+      <div id="countdown" style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:24px;font-weight:700;color:var(--amber)">00:00:00</div>
+    </section>
+
+    <section class="grid mt" style="grid-template-columns:1fr 1fr">
+      <div class="card">
+        <label class="small muted">Şehir</label>
+        <select id="city" class="field mt"></select>
+      </div>
+      <div class="card">
+        <label class="small muted">İlçe</label>
+        <select id="district" class="field mt"></select>
+      </div>
+    </section>
+
+    <section class="card mt">
+      <label class="small muted">Tarih</label>
+      <input id="date" type="date" class="field mt" />
+      <div id="dateText" class="small muted mt"></div>
+    </section>
+
+    <section id="prayerList" class="card mt"></section>
+
+    <footer class="small muted" style="text-align:center;padding:14px 0">Odaklı ibadet için sade ve huzurlu bir tasarım.</footer>
+  </main>
+
+  <nav class="bottom small">
+    <div>🏠 Ana Sayfa</div>
+    <div>🧭 Kıble</div>
+    <div>⚙️ Ayarlar</div>
+  </nav>
+
+  <script>
+    const cities = {
+      Istanbul: ['Fatih','Kadikoy','Uskudar'],
+      Ankara: ['Cankaya','Kecioren','Mamak'],
+      Izmir: ['Konak','Bornova','Buca']
+    };
+
+    const baseSchedule = [
+      {name:'İmsak',time:'05:15',ramadan:true},
+      {name:'Güneş',time:'06:31'},
+      {name:'Öğle',time:'12:44'},
+      {name:'İkindi',time:'16:09'},
+      {name:'Akşam',time:'18:57',ramadan:true},
+      {name:'Yatsı',time:'20:18'}
+    ];
+
+    const $ = (id)=>document.getElementById(id);
+    const state = {
+      city: localStorage.getItem('selectedCity') || 'Istanbul',
+      district: localStorage.getItem('selectedDistrict') || 'Fatih',
+      dark: localStorage.getItem('isDarkMode') === 'true',
+      prayers: baseSchedule,
+    };
+
+    function applyTheme(){
+      document.documentElement.classList.toggle('dark', state.dark);
+      $('darkToggle').textContent = state.dark ? '☀️' : '🌙';
+      localStorage.setItem('isDarkMode', String(state.dark));
+    }
+
+    function parseMoment(hhmm, date=new Date()){
+      const [h,m] = hhmm.split(':').map(Number);
+      const d = new Date(date);
+      d.setHours(h,m,0,0);
+      return d;
+    }
+
+    function formatDiff(target, now){
+      let diff = Math.max(0, Math.floor((target-now)/1000));
+      const h = String(Math.floor(diff/3600)).padStart(2,'0');
+      diff %= 3600;
+      const m = String(Math.floor(diff/60)).padStart(2,'0');
+      const s = String(diff%60).padStart(2,'0');
+      return `${h}:${m}:${s}`;
+    }
+
+    function computePrayerStatus(now = new Date()){
+      const schedule = state.prayers.map(p => ({...p, at: parseMoment(p.time, now)}));
+      const upcoming = schedule.find(s => s.at > now);
+      const currentIndex = upcoming ? Math.max(0, schedule.indexOf(upcoming)-1) : schedule.length-1;
+      const current = schedule[currentIndex];
+      const next = upcoming || {...schedule[0], at: new Date(schedule[0].at.getTime() + 86400000)};
+      return { current, next, countdown: formatDiff(next.at, now) };
+    }
+
+    function renderHeader(now){
+      $('todayText').textContent = now.toLocaleDateString('tr-TR',{weekday:'long',day:'2-digit',month:'short',year:'numeric'});
+      $('clock').textContent = now.toLocaleTimeString('tr-TR',{hour12:false});
+    }
+
+    function renderSelectors(){
+      $('city').innerHTML = Object.keys(cities).map(c=>`<option value="${c}">${c}</option>`).join('');
+      $('city').value = state.city;
+      renderDistricts();
+      $('date').valueAsDate = new Date();
+      $('dateText').textContent = new Date().toLocaleDateString('tr-TR',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
+    }
+
+    function renderDistricts(){
+      const options = cities[state.city] || [];
+      if(!options.includes(state.district)) state.district = options[0];
+      $('district').innerHTML = options.map(d=>`<option value="${d}">${d}</option>`).join('');
+      $('district').value = state.district;
+      localStorage.setItem('selectedCity', state.city);
+      localStorage.setItem('selectedDistrict', state.district);
+    }
+
+    function renderPrayerList(current){
+      $('prayerList').innerHTML = state.prayers.map(p=>{
+        const active = current && current.name===p.name;
+        return `<div class="prayer-item ${active?'active':''}" style="margin-bottom:8px">
+          <div style="display:flex;align-items:center;gap:8px">
+            <strong>${p.name}</strong>
+            ${active?'<span class="badge b-muted">Bugün</span>':''}
+            ${p.ramadan?'<span class="badge b-amber">Ramazan</span>':''}
+          </div>
+          <div style="font-weight:700;color:var(--primary)">${p.time}</div>
+        </div>`;
+      }).join('') || '<div class="muted">Namaz çizelgesi bulunamadı.</div>';
+    }
+
+    function renderMain(){
+      const { current, next, countdown } = computePrayerStatus(new Date());
+      $('loadingCard').style.display = 'none';
+      $('highlight').style.display = 'block';
+      $('currentPrayerName').textContent = current?.name || '-';
+      $('currentPrayerTime').textContent = current?.time || '-';
+      $('ramadanBadge').style.display = current?.ramadan ? 'inline-flex':'none';
+      $('nextPrayerInfo').textContent = next ? `${next.name} - ${next.time}` : '-';
+      $('nextPrayerName').textContent = next?.name || 'sonraki vakit';
+      $('countdown').textContent = countdown;
+      renderPrayerList(current);
+    }
+
+    $('darkToggle').addEventListener('click', ()=>{state.dark=!state.dark; applyTheme();});
+    $('city').addEventListener('change', (e)=>{state.city=e.target.value; renderDistricts(); renderMain();});
+    $('district').addEventListener('change', (e)=>{state.district=e.target.value; localStorage.setItem('selectedDistrict',state.district); renderMain();});
+    $('date').addEventListener('change', (e)=>{
+      const d = new Date(e.target.value + 'T00:00:00');
+      $('dateText').textContent = d.toLocaleDateString('tr-TR',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
+    });
+
+    applyTheme();
+    renderSelectors();
+    renderMain();
+    setInterval(()=>{ const now=new Date(); renderHeader(now); renderMain(); }, 1000);
+    renderHeader(new Date());
+  </script>
+</body>
+</html>
